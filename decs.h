@@ -706,4 +706,3 @@ extern double global_x20;
 //TORUS
 extern double global_kappa;
 extern double aphipow;
-
