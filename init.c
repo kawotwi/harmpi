@@ -65,12 +65,12 @@ double normalize_B_by_beta(double beta_target, double (*p)[N2M][N3M][NPR], doubl
 /////////////////////
 //magnetic field geometry and normalization
 #define NORMALFIELD (0)
-
+#define MADFIELD (1)
 #define WHICHFIELD NORMALFIELD
 
 #define NORMALIZE_FIELD_BY_MAX_RATIO (1)
 #define NORMALIZE_FIELD_BY_BETAMIN (2)
-#define WHICH_FIELD_NORMALIZATION NORMALIZE_FIELD_BY_BETAMIN
+#define WHICH_FIELD_NORMALIZATION NORMALIZE_FIELD_BY_MAX_RATIO
 //end magnetic field
 //////////////////////
 
@@ -148,12 +148,12 @@ void init_torus()
   double Amin, Amax, cutoff_frac = 0.01;
   
   /* some physics parameters */
-  gam = 5./3. ;
+  gam = 13./9. ;
 
   /* disk parameters (use fishbone.m to select new solutions) */
-  a = 0.9 ;
-  rin = 6. ;
-  rmax = 13. ;
+  a = 0.9375 ;
+  rin = 20. ;
+  rmax = 41. ;
   l = lfish_calc(rmax) ;
 
   kappa =1.e-3;
@@ -210,7 +210,7 @@ void init_torus()
   }
 
   /* output choices */
-  tf = 10000.0 ;
+  tf = 30000.0 ;
 
   DTd = 10.; /* dumping frequency, in units of M */
   DTl = 10. ;	/* logfile frequency, in units of M */
@@ -368,6 +368,9 @@ void init_torus()
   if (WHICHFIELD == NORMALFIELD) {
     aphipow = 0.;
   }
+  else if (WHICHFIELD == MADFIELD) {
+    aphipow = 3.;
+  }
   else {
     fprintf(stderr, "Unknown field type: %d\n", (int)WHICHFIELD);
     exit(321);
@@ -410,7 +413,10 @@ void init_torus()
                   p[i-1][j-1][k][RHO]) ;
 
           q = pow(r,aphipow)*rho_av/rhomax ;
-          if (WHICHFIELD == NORMALFIELD) {
+          if (WHICHFIELD == MADFIELD) {
+            q *= pow(sin(th)/rin,aphipow)*exp(-r/400.);
+          }
+          if (WHICHFIELD == NORMALFIELD || WHICHFIELD == MADFIELD) {
             q -= 0.2;
           }
           if(q > 0.) A[i][j][k] = q ;
@@ -598,13 +604,11 @@ double normalize_B_by_beta(double beta_target, double (*p)[N2M][N3M][NPR], doubl
     p[i][j][k][B1] *= norm ;
     p[i][j][k][B2] *= norm ;
     p[i][j][k][B3] *= norm ;
-    coord(i, j, k, CENT, X);
-    bl_coord(X, &r, &th, &ph);
     get_geometry(i,j,k,CENT,&geom) ;
     bsq_ij = bsq_calc(p[i][j][k],&geom) ;
     u_ij = p[i][j][k][UU];
     beta_ij = (gam - 1.)*u_ij/(0.5*(bsq_ij+SMALL)) ;
-    if(r<rmax && beta_ij < beta_min) beta_min = beta_ij ;
+    if(beta_ij < beta_min) beta_min = beta_ij ;
   }
 #ifdef MPI
   //exchange the info between the MPI processes to get the true max
@@ -641,7 +645,7 @@ void init_bondi()
 	double rmax, lfish_calc(double rmax) ;
 
 	/* some physics parameters */
-	gam = 4./3. ;
+	gam = 13./9. ;
 
 	/* black hole parameters */
         a = 0.9375 ;
