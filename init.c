@@ -66,7 +66,7 @@ double normalize_B_by_beta(double beta_target, double (*p)[N2M][N3M][NPR], doubl
 //magnetic field geometry and normalization
 #define NORMALFIELD (0)
 #define MADFIELD (1)
-#define WHICHFIELD NORMALFIELD
+#define WHICHFIELD MADFIELD
 
 #define NORMALIZE_FIELD_BY_MAX_RATIO (1)
 #define NORMALIZE_FIELD_BY_BETAMIN (2)
