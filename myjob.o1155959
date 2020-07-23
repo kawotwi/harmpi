@@ -1,0 +1,14 @@
+/home1/07519/kawotwi/harmpi
+Wed Jul 22 17:53:28 CDT 2020
+CPU geometry: 1 1 1 (total number of tasks: 1)
+Tile size: 128 128 1
+Total resolution: 128 128 1
+MPI process    0 (   0,   0,   0) has PID = 28199
+_OPENMP not defined: running in serial
+x1max = 7.41431 (dx1max/x1max = 4.6719e-15, itno = 42)
+Starting grid pre-computation... done!
+G_tmp = 1.44444444444444441977e+00 
+dump   size = 0.0026 GB
+gdump  size = 0.0035 GB
+gdump2 size = 0.0038 GB
+fdump  size = 0.00061 GB
