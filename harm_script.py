@@ -359,7 +359,7 @@ def rg2(dump):
     read_file(dump,type="gdump2",noround=True)
 
 #high-level function that reads either MPI or serial gdump's
-def read_file(dump,type=None,savedump=True,saverdump=False,noround=False):
+def read_file(dump,type=None,savedump=True,noround=False,saverdump="None"):
     if type is None:
         if dump.startswith("dump"):
             type = "dump"
@@ -383,6 +383,37 @@ def read_file(dump,type=None,savedump=True,saverdump=False,noround=False):
     if os.path.isfile( "dumps/" + dump ):
         headerline = read_header("dumps/" + dump, returnheaderline = True)
         gd = read_body("dumps/" + dump,nx=N1+2*N1G,ny=N2+2*N2G,nz=N3+2*N3G,noround=1)
+        if type == "rdump" and saverdump != "None":
+            #treat the value of saverdump as the new number of cells in phi direction
+            new_nz = saverdump
+            #gd: var,i,j,k
+            #if the full dump file does not exist, create it
+            dumpfullname = "dumps/" + dump + ("_%d" % new_nz)
+            if os.path.isfile(dumpfullname):
+                print("File %s already exists, not overwriting. Please remove the file and try again."
+                      % dumpfullname)
+            else:
+                sys.stdout.write("Saving rdump with the new Nphi = %d to %s..." % (new_nz, dumpfullname))
+                sys.stdout.flush()
+                header = headerline.split()
+                header[2] = "%d" % new_nz #nz = new_nz
+                header[5] = "%d" % new_nz #nz = new_nz
+                fout = open( dumpfullname, "wb" )
+                #join header items with " " (space) as a glue
+                #see http://stackoverflow.com/questions/12377473/python-write-versus-writelines-and-concatenated-strings
+                #write it out with a new line char at the end
+                fout.write(" ".join(header) + "\n")
+                fout.flush()
+                os.fsync(fout.fileno())
+                #reshape the dump content
+                gd1 = gd.transpose(1,2,3,0)
+                newshape = np.array(gd1.shape,dtype=np.int64)
+                newshape[2] = new_nz
+                gd2 = np.zeros(newshape)
+                gd2 = gd1 + gd2
+                gd2.tofile(fout)
+                fout.close()
+                print( " done!" )
         if noround:
             res = data_assign(         gd,type=type,nx=N1+2*N1G,ny=N2+2*N2G,nz=N3+2*N3G)
         else:
