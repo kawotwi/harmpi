@@ -81,7 +81,7 @@
 
 #define WHICHPROBLEM TORUS_PROBLEM
 #define DOKTOT   1
-#define DOCYLINDRIFYCOORDS 0
+#define DOCYLINDRIFYCOORDS 1
 
 /** here are the few things that we change frequently **/
 
